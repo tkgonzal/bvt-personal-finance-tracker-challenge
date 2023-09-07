@@ -1,0 +1,10 @@
+{
+  "items": [
+    {
+      "name": "Chicken breast",
+      "category": "Groceries",
+      "amount": 5.99,
+      "timestamp": "2023-09-07 13:30:17"
+    }
+  ]
+}
