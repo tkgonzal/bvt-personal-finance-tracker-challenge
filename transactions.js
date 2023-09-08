@@ -1,6 +1,10 @@
 const fs = require("fs");
+const JSONStream = require("JSONStream");
 
+// Constants
 const ITEM_KEYS = ["name", "category", "amount"];
+const LEDGER_FILE = "GeneralLedger.json";
+const JSON_SPACE_INDENTATION_COUNT = 2;
 
 // Item Object Generation Function
 /**
@@ -28,8 +32,53 @@ const makeNewItem = itemArgs => {
     return newItem;
 }
 
+// Ledger File Functions
+/**
+ * Used to initialize the ledger file as an object with an empty 
+ * items array member
+ */
+const initializeLedger = () => {
+    const ledger = { items: [] };
+
+    fs.writeFileSync(LEDGER_FILE, JSON.stringify(ledger));
+}
+
+/**
+ * A Promise used to load the ledger in the ledger file
+ * @returns {Object} A ledger object containing an items member, which consists 
+ * of item objects which contain information regarding transactions made
+ */
+const loadLedger = () => {
+    return new Promise((resolve, reject) => {
+        const ledger = { items: [] };
+
+        const ledgerStream = fs.createReadStream(LEDGER_FILE, "utf-8");
+
+        ledgerStream.pipe(JSONStream.parse("items.*"))
+            .on("data", chunk => {
+                ledger.items.push(chunk);
+            });
+
+        ledgerStream.on("error", err => reject(err));
+
+        ledgerStream.on("end", () => resolve(ledger));
+    });
+}
+
+/**
+ * Adds a given item to the ledger file
+ * @param {Object} item An object containing the relevant information of a 
+ * transaction made
+ */
+const addItemToLedger = async item => {
+    const ledger = await loadLedger();
+    ledger.items.push(item);
+    fs.writeFileSync(LEDGER_FILE, 
+        JSON.stringify(ledger, null, JSON_SPACE_INDENTATION_COUNT));
+}
+
 // --------MAIN DRIVER--------
-(() => {
+(async () => {
     try {
         const args = process.argv.slice(2);
     
@@ -39,7 +88,11 @@ const makeNewItem = itemArgs => {
     
         const newItem = makeNewItem(args);
 
-        console.log(newItem);
+        if (!fs.existsSync(LEDGER_FILE)) {
+            initializeLedger();
+        }
+
+        addItemToLedger(newItem);
     } catch (error) {
         console.log(`${error.name}: ${error.message}`);
         console.log("transactions.js terminating permaturely");

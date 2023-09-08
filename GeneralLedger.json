@@ -1,0 +1,22 @@
+{
+  "items": [
+    {
+      "name": "ChickenBreast",
+      "category": "Groceries",
+      "amount": 5.99,
+      "timestamp": "2023-09-08T21:27:51.287Z"
+    },
+    {
+      "name": "ChickenWings",
+      "category": "Groceries",
+      "amount": 6.99,
+      "timestamp": "2023-09-08T21:38:24.140Z"
+    },
+    {
+      "name": "ChickenWings",
+      "category": "Groceries",
+      "amount": 6.99,
+      "timestamp": "2023-09-08T21:39:36.932Z"
+    }
+  ]
+}
