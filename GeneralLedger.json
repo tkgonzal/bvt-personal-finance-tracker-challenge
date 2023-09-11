@@ -71,6 +71,12 @@
       "category": "Games",
       "amount": 599.99,
       "timestamp": "2023-09-08T22:06:10.524Z"
+    },
+    {
+      "name": "old",
+      "category": "old",
+      "amount": 2,
+      "timestamp": "2023-06-11T21:46:38.345Z"
     }
   ]
 }

@@ -4,8 +4,82 @@ const JSONStream = require("JSONStream");
 // Constants
 const LEDGER_FILE = "GeneralLedger.json";
 const PENNIES_IN_DOLLAR = 100;
+const CATEGORY_FLAGS = ["--category", "-c"];
+const INTERVAL_FLAGS = ["--interval", "-i"];
+const ACCEPTED_FLAGS = [...CATEGORY_FLAGS, ...INTERVAL_FLAGS];
+const INTERVAL_ARG_RE = /^\d+(d|m|y)$/;
 
 // Helper Functions
+const getSummaryFilterFlags = flagArgs => {
+    // If the args are not even (i.e. a flag does not have a corresoponding value)
+    // Throws an error
+    if (flagArgs.length % 2) {
+        throw new TypeError("Must provide argument values for each flag");
+    }
+
+    // Each member indicates whether or not a flag is active.
+    // if it is, will also have a member for the value to
+    // use for that flag's function
+    const flags = {
+        category: false,
+        categoryVal: null, // The category to filter for
+        interval: false,
+        intervalVal: null // The earliest date to filter from
+    }
+
+    for (let i = 0; i < flagArgs.length; i += 2) {
+        if (ACCEPTED_FLAGS.includes(flagArgs[i])) {
+            if (CATEGORY_FLAGS.includes(flagArgs[i])) {
+                flags.category = true;
+                flags.categoryVal = flagArgs[i + 1];
+            } else {
+                flags.interval = true;
+                const intervalArgVal = flagArgs[i + 1];
+
+                if (!INTERVAL_ARG_RE.test(intervalArgVal)) {
+                    throw new TypeError("Interval value must be a whole number followed by a d, m, or y (i.e. 30d)");
+                }
+
+                flags.intervalVal = getDateToFilterFrom(intervalArgVal);
+            }
+
+        } else {
+            throw new TypeError("Invalid flag given");
+        }
+    }
+
+    return flags;
+}
+
+const getDateToFilterFrom = (intervalArgVal) => {
+    const intervalType = intervalArgVal.at(-1);
+    const intervalLength = parseInt(intervalArgVal.slice(
+        0, intervalArgVal.length - 1
+    ));
+
+    const timestampThreshold = new Date();
+
+    switch (intervalType) {
+        case "d":
+            timestampThreshold.setDate(
+                timestampThreshold.getDate() - intervalLength
+            );
+            break;
+        case "m":
+            timestampThreshold.setMonth(
+                timestampThreshold.getMonth() - intervalLength
+            );
+            break;
+        case "y":
+            timestampThreshold.setFullYear(
+                timestampThreshold.getFullYear() - intervalLength
+            );
+            break;
+    }
+
+    return timestampThreshold;
+}
+
 /**
  * Tally's a given item into the summaryStats
  * @param {Map} summaryStats A map that tracks the total amount
@@ -13,7 +87,14 @@ const PENNIES_IN_DOLLAR = 100;
  * each item per category
  * @param {Object} item A transaction item object
  */
-const tallyItem = (summaryStats, item) => {
+const tallyItem = (summaryStats, flags, item) => {
+    const timestampAdded = new Date(item.timestamp);
+
+    if ((flags.category && item.category !== flags.categoryVal) ||
+        (flags.interval && flags.intervalVal > timestampAdded)) {
+        return;
+    }
+
     if (!summaryStats.has(item.category)) {
         summaryStats.set(item.category, {
             totalSpent: 0,
@@ -63,6 +144,9 @@ const logItem = item => {
 // Summary Driver
 (() => {
     try {
+        const flagArgs = process.argv.slice(2);
+        const summaryFilterFlags = getSummaryFilterFlags(flagArgs);
+
         const summaryStats = new Map();
 
         const ledgerStream = fs.createReadStream(LEDGER_FILE, "utf-8");
@@ -71,7 +155,7 @@ const logItem = item => {
 
         ledgerStream.pipe(JSONStream.parse("items.*"))
             .on("data", chunk => {
-                tallyItem(summaryStats, chunk);
+                tallyItem(summaryStats, summaryFilterFlags, chunk);
             });
 
         ledgerStream.on("end", () => {
