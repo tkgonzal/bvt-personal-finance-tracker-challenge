@@ -1,32 +1,29 @@
-# Personal Finance Tracker
+# Personal Finance Tracker Coding Challenge
+A coding challenge from Bay Valley Tech given on 9/7/2023, to make two scripts. One to accept arguments to record different transactions and write them to a GeneralLedger.json file, and another to take arguments to output summary information regarding the GeneralLedger.json file.
 
-### Description
+## Usage
+### transactions.js
+The transactions.js script must always be called with three arguments, in the format of "-name=**name** -category=**category** -amount=**amount**", where 
+* **name** is a string specifying the name of the item purchased in the transatcion
+* **category** is a string specifying the category of the transaction
+* **amount** is a float specifying the amount of money spent on the transaction
 
-Tracking your purchases against a budget is an important step towards achieving financial wellness and stability.
+The **name** and **category** argument values must not be space delimited (i.e. Chicken Breast must be inputted as ChickenBreast) and the **amount** value must be a float that only goes to the hundredths place (i.e. 5.001 must be inputted as 5.00)
 
-### Acceptance Criteria
- - Create a script, executable via a shell that will accept the following arguments:
-   - Item name: The item that was purchased (e.g., "Auto Loan Payment", "Chicken breast", etc.). This is a string.
-   - Item category: What category the item belongs to (e.g. "Groceries" if the item name is "Chicken breast"). This is a string.
-   - Amount: The price of the item that was purchased. This is a decimal with two points of precision (e.g., $5.99).
- - Write any transactions entered to a general ledger. 
-   - This will be written to a file on disk (not using a database).
-   - You can find an example under `sample-data/GeneralLedger.json`.
-   - All items written to the general ledger should include the three arguments _and_ an insert timestamp that logs when the item was written to the general ledger.
- - Create a script that will ingest all the data from the general ledger and will output a summary that will accept the following flags:
-   - `--category` or `-c`: The item category.
-   - `--interval` or `-i`: The time interval. For example, `-i 30d` will output a summary of all items in the general ledger from the last 30 days.
-   - The following interval types should be supported: 
-     - `d`: day
-     - `m`: month
-     - `y`: year
-   - Negative values should return an error (i.e., `-i -5y`)
-   - The summary should have the following information:
-     - Each transaction's item name, category, amount, and timestamp.
-     - A breakdown of each category and amount per category
-       - For example, if the ledger has three purchases of chicken breast in the amount of $5.99 per chicken breast, the summary may be: "Groceries - $17.97" 
- - Upload your code in a folder in [Google Drive](https://drive.google.com/drive/folders/1JqkI1S0mB1SUo30NwPdSz3s9PINi9Soo?usp=sharing).
+### summary.js
+The summary.js can be called either with or without the following flags/arguments.
+* **--category/-c**, must be followed by a space and a string for the flag. When passed this, the summary will only output transactions that fall under the given category
+* **--interval/-i**, must be followed a space a string for the flag in the format of a number and a d, m, or y (i.e. 30d, 5y, 3m). When passed this, the script will only output transactions in the last interval value amount of time, where d specifies days, m specifies months, and y specifies years. 
 
-### Important Notes
- - Be careful of floating point arithmatic. 0.01 + 0.02 != 0.03
-   - You may want to research best practices for adding floating point numbers together, namely with dollars and cents.
+## Examples of Valid Calls for Each Script
+```
+node transactions.js -name=ChickenBreast -category=Groceries -amount=5.99
+```
+```
+node summary.js
+node summary.js --category Groceries
+node summary.js -c Groceries
+node summary.js --interval 30d
+node summary.js -i 30d
+node summary.js --category Groceries -i 30d
+```
