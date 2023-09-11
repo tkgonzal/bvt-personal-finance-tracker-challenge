@@ -1,0 +1,22 @@
+{
+    "items": [
+        {
+            "name": "3MonthsOld",
+            "category": "TimeBased",
+            "amount": 2,
+            "timestamp": "2023-06-11T21:46:38.345Z"
+          },
+          {
+            "name": "3YearsOld",
+            "category": "TimeBased",
+            "amount": 2,
+            "timestamp": "2020-06-11T21:46:38.345Z"
+          },
+          {
+            "name": "3DaysOld",
+            "category": "TimeBased",
+            "amount": 2,
+            "timestamp": "2023-09-08T21:46:38.345Z"
+          }
+    ]
+}

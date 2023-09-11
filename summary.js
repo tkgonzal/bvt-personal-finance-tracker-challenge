@@ -8,8 +8,14 @@ const CATEGORY_FLAGS = ["--category", "-c"];
 const INTERVAL_FLAGS = ["--interval", "-i"];
 const ACCEPTED_FLAGS = [...CATEGORY_FLAGS, ...INTERVAL_FLAGS];
 const INTERVAL_ARG_RE = /^\d+(d|m|y)$/;
+const HORIZONTAL_BREAK_DASH_COUNT = 24;
 
 // Helper Functions
+/**
+ * @param {string[]} flagArgs An array of arguements passed to the script,
+ * specifying the flags and values to consider when running
+ * @returns {Object} A flag object to use to filter what the script returns.
+ */
 const getSummaryFilterFlags = flagArgs => {
     // If the args are not even (i.e. a flag does not have a corresoponding value)
     // Throws an error
@@ -51,33 +57,39 @@ const getSummaryFilterFlags = flagArgs => {
     return flags;
 }
 
+/**
+ * @param {string} intervalArgVal An argument for the interval flag in the 
+ * format of a number followed by a d, m, or y
+ * @returns A date cutoff to use when filtering the ledger for transactions
+ * within a certain timeframe
+ */
 const getDateToFilterFrom = (intervalArgVal) => {
     const intervalType = intervalArgVal.at(-1);
     const intervalLength = parseInt(intervalArgVal.slice(
         0, intervalArgVal.length - 1
     ));
 
-    const timestampThreshold = new Date();
+    const timestampCutOff = new Date();
 
     switch (intervalType) {
         case "d":
-            timestampThreshold.setDate(
-                timestampThreshold.getDate() - intervalLength
+            timestampCutOff.setDate(
+                timestampCutOff.getDate() - intervalLength
             );
             break;
         case "m":
-            timestampThreshold.setMonth(
-                timestampThreshold.getMonth() - intervalLength
+            timestampCutOff.setMonth(
+                timestampCutOff.getMonth() - intervalLength
             );
             break;
         case "y":
-            timestampThreshold.setFullYear(
-                timestampThreshold.getFullYear() - intervalLength
+            timestampCutOff.setFullYear(
+                timestampCutOff.getFullYear() - intervalLength
             );
             break;
     }
 
-    return timestampThreshold;
+    return timestampCutOff;
 }
 
 /**
@@ -120,7 +132,7 @@ const logSummary = summaryStats => {
             .toFixed(2);
         
         console.log(`${category} - $${totalSpentString}`);
-        console.log("-".repeat(24));
+        console.log("-".repeat(HORIZONTAL_BREAK_DASH_COUNT));
         categoryStat.items.forEach(logItem);
         console.log();
     });
@@ -137,8 +149,7 @@ const logItem = item => {
     console.log(`  category: ${item.category}`);
     console.log(`  amount: $${item.amount.toFixed(2)}`);
     console.log(`  timestamp added: ${timestampAdded.toLocaleString()}`);
-    console.log("-".repeat(24));
-    
+    console.log("-".repeat(HORIZONTAL_BREAK_DASH_COUNT));
 }
 
 // Summary Driver

@@ -73,10 +73,22 @@
       "timestamp": "2023-09-08T22:06:10.524Z"
     },
     {
-      "name": "old",
-      "category": "old",
+      "name": "3MonthsOld",
+      "category": "TimeBased",
       "amount": 2,
-      "timestamp": "2023-06-11T21:46:38.345Z"
+      "timestamp": "2023-06-11T23:46:38.345Z"
+    },
+    {
+      "name": "3YearsOld",
+      "category": "TimeBased",
+      "amount": 2,
+      "timestamp": "2020-06-11T21:46:38.345Z"
+    },
+    {
+      "name": "3DaysOld",
+      "category": "TimeBased",
+      "amount": 2,
+      "timestamp": "2023-09-08T21:46:38.345Z"
     }
   ]
 }
