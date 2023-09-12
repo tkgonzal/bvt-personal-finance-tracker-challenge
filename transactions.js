@@ -1,30 +1,35 @@
 const fs = require("fs");
 const JSONStream = require("JSONStream");
+const { program } = require("commander");
 
 // Constants
 const ITEM_KEYS = ["name", "category", "amount"];
 const LEDGER_FILE = "GeneralLedger.json";
 const JSON_SPACE_INDENTATION_COUNT = 2;
+const PENNIES_IN_DOLLAR = 100;
+const FLOAT_RE = /^\d+.\d*$/;
 
 // Item Object Generation Function
 /**
- * @param {string[]} itemArgs An array of arguments passed to the script
- * specifying key value pairs for an item to insert into the ledger
+ * @param {Object} itemArgs An object of values for an item to create, passed
+ * as arguments to the script
  * @returns {Object} An item object to insert into the ledger
  */
 const makeNewItem = itemArgs => {
     const newItem = {};
-    
-    itemArgs.forEach(arg => {
-        const equalsIndex = arg.indexOf("=");
-        const key = arg.slice(1, equalsIndex)
-        const val = arg.slice(equalsIndex + 1);
 
-        if (!key | !ITEM_KEYS.includes(key)) {
-            throw new TypeError(`Argument key must be -name, -category, or -amount, not ${key ? `${key}`: "empty"}`);
-        } 
+    ITEM_KEYS.forEach(itemKey => {
+        if (itemKey == "amount") {
+            if (!FLOAT_RE.test(itemArgs[itemKey])) {
+                throw new TypeError("Amount value must be valid non-negative number");
+            }
 
-        newItem[key] = key !== "amount" ? val : parseFloat(val);
+            // Used to clamp amount value to hundredths place
+            newItem[itemKey] = Math.round(itemArgs[itemKey] * PENNIES_IN_DOLLAR) 
+                / PENNIES_IN_DOLLAR;
+        } else {
+            newItem[itemKey] = itemArgs[itemKey];
+        }
     });
 
     newItem["timestamp"] = new Date();
@@ -77,22 +82,40 @@ const addItemToLedger = async item => {
         JSON.stringify(ledger, null, JSON_SPACE_INDENTATION_COUNT));
 }
 
+// Output Logging Functions
+const getItemStr = item => {
+    return `{ ${ITEM_KEYS
+        .map(key => `${key} : ${item[key]}`)
+        .join(", ")} }`;
+}
+
 // --------MAIN DRIVER--------
 (async () => {
     try {
-        const args = process.argv.slice(2);
+        program
+            .option("-n, --name <name>", "name of item from transaction")
+            .option("-c, --category <type>", "category of the item from the transaction")
+            .option("-a, --amount <value>", "the amount spent on the transaction");
+
+        program.parse(process.argv);
     
-        if (args.length !== 3) {
-            throw new TypeError("Must provide arguments for exactly -name, -category, and -amount");
+        const options = program.opts();
+
+        for (const itemKey of ITEM_KEYS) {
+            if (!options[itemKey]) {
+                throw new TypeError(`Must provide value for ${itemKey}`);
+            }
         }
-    
-        const newItem = makeNewItem(args);
+
+        const newItem = makeNewItem(options);
 
         if (!fs.existsSync(LEDGER_FILE)) {
             initializeLedger();
         }
 
         addItemToLedger(newItem);
+
+        console.log(`Added item ${getItemStr(newItem)} to ${LEDGER_FILE}`);
     } catch (error) {
         console.log(`${error.name}: ${error.message}`);
         console.log("transactions.js terminating permaturely");

@@ -148,7 +148,7 @@ const logItem = item => {
     try {
         program
             .option("-c, --category <type>", "category of item transaction")
-            .option("-i, --interval <length>", "time interval to filter from")
+            .option("-i, --interval <length>", "time interval to filter from");
         
         program.parse(process.argv);
         const summaryFilterFlags = getSummaryFilterFlags(program.opts());

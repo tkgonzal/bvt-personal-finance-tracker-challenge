@@ -1,76 +1,76 @@
 {
   "items": [
     {
-      "name": "ChickenBreast",
+      "name": "Chicken Breast",
       "category": "Groceries",
       "amount": 5.99,
-      "timestamp": "2023-09-08T22:04:41.693Z"
+      "timestamp": "2023-09-12T22:53:05.033Z"
     },
     {
       "name": "Carrots",
       "category": "Groceries",
       "amount": 1.35,
-      "timestamp": "2023-09-08T22:04:49.718Z"
+      "timestamp": "2023-09-12T22:53:09.282Z"
     },
     {
       "name": "Onions",
       "category": "Groceries",
       "amount": 3.59,
-      "timestamp": "2023-09-08T22:04:56.349Z"
+      "timestamp": "2023-09-12T22:53:13.585Z"
     },
     {
       "name": "Potatoes",
       "category": "Groceries",
       "amount": 2.5,
-      "timestamp": "2023-09-08T22:05:02.151Z"
+      "timestamp": "2023-09-12T22:53:18.258Z"
     },
     {
-      "name": "CurryRoux",
+      "name": "Curry Roux",
       "category": "Groceries",
       "amount": 9.99,
-      "timestamp": "2023-09-08T22:05:07.876Z"
+      "timestamp": "2023-09-12T22:53:22.757Z"
     },
     {
       "name": "Salt",
       "category": "Groceries",
       "amount": 4.99,
-      "timestamp": "2023-09-08T22:05:13.005Z"
+      "timestamp": "2023-09-12T22:53:26.889Z"
     },
     {
       "name": "Pepper",
       "category": "Groceries",
       "amount": 4.99,
-      "timestamp": "2023-09-08T22:05:19.452Z"
+      "timestamp": "2023-09-12T22:53:31.310Z"
     },
     {
-      "name": "DocMartensOxfords",
+      "name": "Doc Martens Oxfords",
       "category": "Clothes",
       "amount": 125.99,
-      "timestamp": "2023-09-08T22:05:33.095Z"
+      "timestamp": "2023-09-12T22:53:37.296Z"
     },
     {
-      "name": "GirbaudJeans",
+      "name": "Girbaud Jeans",
       "category": "Clothes",
       "amount": 130,
-      "timestamp": "2023-09-08T22:05:38.979Z"
+      "timestamp": "2023-09-12T22:53:41.288Z"
     },
     {
-      "name": "HarleyDavidsonTee",
+      "name": "Harley Davidson Tee",
       "category": "Clothes",
       "amount": 50,
-      "timestamp": "2023-09-08T22:05:44.464Z"
+      "timestamp": "2023-09-12T22:53:45.825Z"
     },
     {
-      "name": "CarharttBeanie",
+      "name": "Carhartt Beanie",
       "category": "Clothes",
       "amount": 39.99,
-      "timestamp": "2023-09-08T22:05:50.393Z"
+      "timestamp": "2023-09-12T22:53:51.540Z"
     },
     {
-      "name": "FireEmblemPathOfRadiance",
+      "name": "Fire Emblem Path Of Radiance",
       "category": "Games",
       "amount": 599.99,
-      "timestamp": "2023-09-08T22:06:10.524Z"
+      "timestamp": "2023-09-12T22:53:57.050Z"
     }
   ]
 }
