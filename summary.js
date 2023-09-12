@@ -1,57 +1,35 @@
 const fs = require("fs");
 const JSONStream = require("JSONStream");
+const { program } = require("commander");
 
 // Constants
 const LEDGER_FILE = "GeneralLedger.json";
 const PENNIES_IN_DOLLAR = 100;
-const CATEGORY_FLAGS = ["--category", "-c"];
-const INTERVAL_FLAGS = ["--interval", "-i"];
-const ACCEPTED_FLAGS = [...CATEGORY_FLAGS, ...INTERVAL_FLAGS];
 const INTERVAL_ARG_RE = /^\d+(d|m|y)$/;
 const HORIZONTAL_BREAK_DASH_COUNT = 24;
 
 // Helper Functions
 /**
- * @param {string[]} flagArgs An array of arguements passed to the script,
- * specifying the flags and values to consider when running
- * @returns {Object} A flag object to use to filter what the script returns.
+ * @param {Object} options An object of option args passed to the program. 
+ * Will be parsed to determine which flags to use when filtering.
+ * @returns {Object} A flag object to use to filter what the summary script
+ * outputs.
  */
-const getSummaryFilterFlags = flagArgs => {
-    // If the args are not even (i.e. a flag does not have a corresoponding value)
-    // Throws an error
-    if (flagArgs.length % 2) {
-        throw new TypeError("Must provide argument values for each flag");
-    }
-
-    // Each member indicates whether or not a flag is active.
-    // if it is, will also have a member for the value to
-    // use for that flag's function
+const getSummaryFilterFlags = options => {
+    // Creates a flags object based on the options objec. Only meaningful
+    // difference is that if an interval is passed, the interval will be
+    // converted from the passed string to a Date object
     const flags = {
-        category: false,
-        categoryVal: null, // The category to filter for
-        interval: false,
-        intervalVal: null // The earliest date to filter from
+        category: options["category"],
+        interval: null
     }
 
-    for (let i = 0; i < flagArgs.length; i += 2) {
-        if (ACCEPTED_FLAGS.includes(flagArgs[i])) {
-            if (CATEGORY_FLAGS.includes(flagArgs[i])) {
-                flags.category = true;
-                flags.categoryVal = flagArgs[i + 1];
-            } else {
-                flags.interval = true;
-                const intervalArgVal = flagArgs[i + 1];
-
-                if (!INTERVAL_ARG_RE.test(intervalArgVal)) {
-                    throw new TypeError("Interval value must be a whole number followed by a d, m, or y (i.e. 30d)");
-                }
-
-                flags.intervalVal = getDateToFilterFrom(intervalArgVal);
-            }
-
-        } else {
-            throw new TypeError("Invalid flag given");
+    if (options.interval) {
+        if (!INTERVAL_ARG_RE.test(options.interval)) {
+            throw new TypeError("Interval value must be a whole number followed by a d, m, or y");
         }
+
+        flags.interval = getDateToFilterFrom(options.interval);
     }
 
     return flags;
@@ -97,13 +75,16 @@ const getDateToFilterFrom = (intervalArgVal) => {
  * @param {Map} summaryStats A map that tracks the total amount
  * of money spect per transaction category, and stores 
  * each item per category
+ * @param {Object} flags An object used to filter which items get tallied.
+ * If a given item doesn't match the flags, the function will return
+ * prematurely.
  * @param {Object} item A transaction item object
  */
 const tallyItem = (summaryStats, flags, item) => {
     const timestampAdded = new Date(item.timestamp);
 
-    if ((flags.category && item.category !== flags.categoryVal) ||
-        (flags.interval && flags.intervalVal > timestampAdded)) {
+    if ((flags.category && item.category !== flags.category) ||
+        (flags.interval && flags.interval > timestampAdded)) {
         return;
     }
 
@@ -125,8 +106,18 @@ const tallyItem = (summaryStats, flags, item) => {
  * @param {Map} summaryStats A map that tracks the total amount
  * of money spect per transaction category, and stores 
  * each item per category
+ * @param {Object} options An options object specifying what arguments
+ * were passed to the script. Used for empty summary logging.
  */
-const logSummary = summaryStats => {
+const logSummary = (summaryStats, options) => {
+    if (summaryStats.size === 0) {
+        const optionStrs = Object.keys(options)
+            .filter(option => options[option])
+            .map(option => `${option} of ${options[option]}`);
+        console.log(`No transactions found for ${optionStrs.join(", ")}`);
+        return;
+    }
+
     summaryStats.forEach((categoryStat, category) => {
         const totalSpentString = (categoryStat.totalSpent / PENNIES_IN_DOLLAR)
             .toFixed(2);
@@ -155,8 +146,12 @@ const logItem = item => {
 // Summary Driver
 (() => {
     try {
-        const flagArgs = process.argv.slice(2);
-        const summaryFilterFlags = getSummaryFilterFlags(flagArgs);
+        program
+            .option("-c, --category <type>", "category of item transaction")
+            .option("-i, --interval <length>", "time interval to filter from")
+        
+        program.parse(process.argv);
+        const summaryFilterFlags = getSummaryFilterFlags(program.opts());
 
         const summaryStats = new Map();
 
@@ -170,7 +165,7 @@ const logItem = item => {
             });
 
         ledgerStream.on("end", () => {
-            logSummary(summaryStats);
+            logSummary(summaryStats, program.opts());
         });
     } catch (error) {
         console.log(`${error.name}: ${error.message}`);
