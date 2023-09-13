@@ -25,7 +25,6 @@ Tracking your purchases against a budget is an important step towards achieving 
      - Each transaction's item name, category, amount, and timestamp.
      - A breakdown of each category and amount per category
        - For example, if the ledger has three purchases of chicken breast in the amount of $5.99 per chicken breast, the summary may be: "Groceries - $17.97" 
- - Upload your code in a folder in [Google Drive](https://drive.google.com/drive/folders/1JqkI1S0mB1SUo30NwPdSz3s9PINi9Soo?usp=sharing).
 
 ### Important Notes
  - Be careful of floating point arithmatic. 0.01 + 0.02 != 0.03
